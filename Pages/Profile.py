@@ -38,3 +38,18 @@ class MyProfile:
         loginPage.checkSuccessfulLogin()
 
 
+class UserProfile:
+    def __init__(self, driver):
+        self.driver = driver
+        self.username = (By.CSS_SELECTOR, '.sc-gJgZMk.bJpLtg')
+        self.confirmDeleteButton = (By.XPATH, '//div[@class="sc-iBAaJG dqKQza"]//button[@mode="delete"]')
+
+    def checkProfilePageLoaded(self):
+        try:
+            WebDriverWait(self.driver,5).until(
+                EC.presence_of_element_located(self.username)
+            )
+
+            return True
+        except:
+            return False

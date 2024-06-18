@@ -44,10 +44,14 @@ class LoginPage:
         return homePage.checkHomePageLoaded()
 
     def login(self, username, password):
+        homePage = HP.HomePage(self.driver)
         self.openLoginPage()
         self.insertUsername(username)
         self.insertPassword(password)
         self.clickLoginButton()
+
+        homePage.checkHomePageLoaded()
+
 
     def checkLoginPageLoaded(self):
         try:

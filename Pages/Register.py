@@ -21,6 +21,7 @@ class RegisterPage:
         self.errorMessageInvalidPassword = (By.XPATH, '//label[text()="Password must be at least 8 characters and contain at least 1 lowercase, 1 uppercase, 1 number, and 1 symbol"]')
         self.errorMessagePasswordsMustMatch = (By.XPATH, '//label[text()="Passwords must match"]')
         self.errorMessageUserAlreadyExists = (By.XPATH, '//label[text()="User already exists"]')
+        self.errorMessageEmailAlreadyExists = (By.XPATH, '//label[text()="Email already exists"]')
 
         self.registerPageURL = r'https://frontend-training-taupe.vercel.app/register'
 
@@ -46,6 +47,7 @@ class RegisterPage:
         self.driver.find_element(*self.registerButton).click()
 
     def register(self, name, username, email, password):
+        homePage = HP.HomePage(self.driver)
         self.driver.get(self.registerPageURL)
 
         self.insertName(name)
@@ -55,6 +57,10 @@ class RegisterPage:
         self.confirmPassword(password)
 
         self.clickRegisterButton()
+
+        homePage.checkHomePageLoaded()
+
+
 
 
     def checkSuccessfulRegister(self):
@@ -96,3 +102,15 @@ class RegisterPage:
             return True
         except:
             return False
+
+    def checkErrorMessageEmailAlreadyExists(self):
+        try:
+            WebDriverWait(self.driver, 20).until(
+                EC.presence_of_element_located(self.errorMessageEmailAlreadyExists)
+            )
+            return True
+        except:
+            return False
+
+    def checkRegisterButtonDisabled(self):
+        return self.driver.find_element(*self.registerButton).get_attribute('disabled')

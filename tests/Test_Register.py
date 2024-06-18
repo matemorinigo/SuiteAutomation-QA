@@ -1,7 +1,7 @@
 import pytest
 from selenium import webdriver
 import os
-from Pages import Register, Profile
+from Pages import Register, Profile, HomePage, Login
 
 
 class Test_Register:
@@ -10,7 +10,7 @@ class Test_Register:
     def Driver(self):
         os.environ['PATH'] += r'C:\Users\Mateo\PycharmProjects\SuiteAutomation-QA\SeleniumDrivers'
         driver = webdriver.Chrome()
-        driver.implicitly_wait(10)
+        driver.implicitly_wait(5)
 
         yield driver
 
@@ -26,8 +26,14 @@ class Test_Register:
     @pytest.fixture
     def RegisterUser(self, Driver):
         registerPage = Register.RegisterPage(Driver)
-        registerPage.register("CP-005","cp005","cp005@example.com","12345Aa!")
+        registerPage.register("CP-005","cp005","usedEmail@example.com","12345Aa!")
+        homePage = HomePage.HomePage(Driver)
+        homePage.logout()
         yield
+        loginPage = Login.LoginPage(Driver)
+        loginPage.login("cp005", "12345Aa!")
+        myProfile = Profile.MyProfile(Driver)
+        myProfile.deleteProfile()
 
 
     def test_successfulRegister_001(self, DeleteUser, Driver):
@@ -103,4 +109,33 @@ class Test_Register:
 
         registerPage.clickRegisterButton()
 
-        assert registerPage.checkErrorMessagePasswordMustMatch()
+        assert registerPage.checkErrorMessageUserAlreadyExists()
+
+    def test_emailAlreadyExists_006(self, Driver, RegisterUser):
+        registerPage = Register.RegisterPage(Driver)
+        registerPage.openRegisterPage()
+
+        registerPage.insertName('NombreTest')
+        registerPage.insertUsername('cp006')
+        registerPage.insertEmail('usedEmail@example.com')
+
+        registerPage.insertPassword('12345Aa!')
+        registerPage.confirmPassword('12345Aa!')
+
+        registerPage.clickRegisterButton()
+
+        assert registerPage.checkErrorMessageEmailAlreadyExists()
+
+    def test_sendFormWithoutField_007(self, Driver):
+        registerPage = Register.RegisterPage(Driver)
+        registerPage.openRegisterPage()
+
+
+        registerPage.insertUsername('cp007')
+        registerPage.insertEmail('usedEmail@example.com')
+
+        registerPage.insertPassword('12345Aa!')
+        registerPage.confirmPassword('12345Aa!')
+
+
+        assert registerPage.checkRegisterButtonDisabled()
