@@ -107,4 +107,63 @@ class Test_HomePage:
 
         assert Driver.current_url != homePage.homePageURL
 
+    def test_followYourself_020(self,Driver):
+        #Me parece redundante hacer el registro de 2 usuarios,
+        #por lo que cree dos usuarios usuariocp0201 y usuariocp0202 que para que este cp funcione
+        #deben estar creados. Asi mismo, en la especificacion de caso de prueba aparece como precondicion
+
+        loginPage = Login.LoginPage(Driver)
+        loginPage.openLoginPage()
+        loginPage.login('usuariocp0201','12345Aa!')
+
+        homePage = HomePage.HomePage(Driver)
+        homePage.openHomePage()
+        homePage.checkHomePageLoaded()
+
+        assert not(homePage.checkUserAppearsOnWhoToFollow('usuariocp0201'))
+
+    def test_likeTweet_024(self,Driver,LoginUser):
+        homePage = HomePage.HomePage(Driver)
+        homePage.openHomePage()
+        homePage.checkHomePageLoaded()
+
+        likesBefore = homePage.getTweetLikes()
+        time.sleep(2)
+        homePage.likeTweet()
+        time.sleep(2)
+
+        assert likesBefore < homePage.getTweetLikes()
+        time.sleep(5)
+
+        homePage.likeTweet()
+        time.sleep(2)
+
+
+    def test_retweetTweet_025(self,Driver,LoginUser):
+        homePage = HomePage.HomePage(Driver)
+        homePage.openHomePage()
+        homePage.checkHomePageLoaded()
+
+        tweetUsername = homePage.getTweetUsername()
+        retweetsBefore = homePage.getTweetRetweets()
+        time.sleep(2)
+        homePage.retweetTweet()
+        time.sleep(2)
+
+        assert retweetsBefore < homePage.getTweetRetweets()
+        time.sleep(5)
+
+        profilePage = Profile.MyProfile(Driver)
+        profilePage.openProfilePage()
+
+        assert profilePage.checkUserTweetsAppear(tweetUsername)
+
+        homePage.openHomePage()
+        homePage.checkHomePageLoaded()
+
+        homePage.likeTweet()
+        time.sleep(2)
+
+
+
 

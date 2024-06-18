@@ -37,13 +37,29 @@ class MyProfile:
 
         loginPage.checkSuccessfulLogin()
 
+    def checkUserTweetsAppear(self, user):
+
+        userTweetXPATH = (f'//div[contains(@class, "sc-fcdPlE cMbONl") and text()="{user}"]')
+
+        try:
+            WebDriverWait(self.driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, userTweetXPATH))
+            )
+            return True
+        except:
+            return False
 
 class UserProfile:
     def __init__(self, driver):
         self.driver = driver
         self.username = (By.CSS_SELECTOR, '.sc-gJgZMk.bJpLtg')
-        self.confirmDeleteButton = (By.XPATH, '//div[@class="sc-iBAaJG dqKQza"]//button[@mode="delete"]')
+        self.followButton = (By.XPATH, '//button[contains(text(), "Follow") or contains(text(), "Unfollow")]')
 
+
+    def openProfilePage(self, url):
+        self.driver.get(url)
+    def clickFollowButton(self):
+        self.driver.find_element(*self.followButton).click()
     def checkProfilePageLoaded(self):
         try:
             WebDriverWait(self.driver,5).until(

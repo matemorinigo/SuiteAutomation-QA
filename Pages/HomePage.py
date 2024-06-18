@@ -28,6 +28,16 @@ class HomePage:
 
         self.userProfilePhoto = (By.CSS_SELECTOR, '.sc-csmVar.TfSnt')
 
+        self.tweetUsername = (By.XPATH, '//div[@class="sc-fcdPlE cMbONl"]')
+        self.retweetButton = (By.XPATH,'//button[img[contains(@alt, "retweet-icon")]]')
+        self.retweets = (By.XPATH,'//button[img[contains(@alt, "retweet-icon")]]/following-sibling::label')
+        self.likeButton = (By.XPATH,'//button[img[contains(@alt, "like-icon")]]')
+        self.likes = (By.XPATH,'//button[img[contains(@alt, "like-icon")]]/following-sibling::label')
+
+        self.followingSection = (By.XPATH, '//*[@id="root"]/div/div/main/div[1]/div[2]/a[2]')
+
+        self.whoToFollowUserXPATH = '//div[contains(@class, "sc-clcPSL eAxZaP") and .//div[contains(@class, "sc-ilpitK hHFWQI") and text()="{}"]]'
+
         #Deberia ir el mensaje que esperamos que aparezca
         self.errorMessageInvalidFile = (By.XPATH, '//label[text()="Invalid file type"]')
         self.errorMessageMaxImages = (By.XPATH, '//label[text()="Post should have 4 or fewer images"]')
@@ -67,6 +77,9 @@ class HomePage:
 
     def clickProfilePhoto(self):
         self.driver.find_element(*self.userProfilePhoto).click()
+
+    def clickFollowingSection(self):
+        self.driver.find_element(*self.followingSection).click()
 
     def addImageToTweet(self,files):
         self.driver.find_element(*self.fileInput).send_keys(files)
@@ -182,6 +195,30 @@ class HomePage:
         except:
             return False
 
+    def checkUserTweetsAppear(self, user):
+
+        userTweetXPATH = (f'//div[contains(@class, "sc-fcdPlE cMbONl") and text()="{user}"]')
+
+        try:
+            WebDriverWait(self.driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, userTweetXPATH))
+            )
+            return True
+        except:
+            return False
+
+    def checkUserTweetsDoesntAppear(self, user):
+
+        userTweetXPATH = (f'//div[contains(@class, "sc-fcdPlE cMbONl") and text()="{user}"]')
+
+        try:
+            WebDriverWait(self.driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, userTweetXPATH))
+            )
+            return False
+        except:
+            return True
+
     def checkUsernameLoggedEqualsTo(self,username):
         return self.driver.find_element(*self.usernameLogged).text == username
 
@@ -216,3 +253,28 @@ class HomePage:
             return True
         except:
             return False
+
+    def checkUserAppearsOnWhoToFollow(self, user):
+
+        xpath = self.whoToFollowUserXPATH.format(user)
+
+        try:
+            WebDriverWait(self.driver,5).until(
+                EC.presence_of_element_located((By.XPATH,xpath))
+            )
+            return True
+        except:
+            return False
+
+    def likeTweet(self):
+        self.driver.find_element(*self.likeButton).click()
+    def getTweetLikes(self):
+        return self.driver.find_element(*self.likes).text
+
+    def retweetTweet(self):
+        self.driver.find_element(*self.retweetButton).click()
+    def getTweetRetweets(self):
+        return self.driver.find_element(*self.retweets).text
+
+    def getTweetUsername(self):
+        return self.driver.find_element(*self.tweetUsername).text
