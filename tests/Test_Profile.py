@@ -24,9 +24,22 @@ class Test_Profile:
         loginPage = Login.LoginPage(Driver)
         loginPage.login('usuario2','12345Aa!')
 
+
+
     @pytest.fixture
-    def LoginReceiver(self,Driver):
+    def LoginUser(self, Driver):
         loginPage = Login.LoginPage(Driver)
+        loginPage.login('usuario2','12345Aa!')
+        yield
+
+    @pytest.fixture
+    def TweetSomething(self, Driver):
+        homePage = HomePage.HomePage(Driver)
+        homePage.openHomePage()
+        homePage.checkHomePageLoaded()
+        homePage.newTweet('New Tweet')
+        time.sleep(2)
+        yield
 
 
     @pytest.fixture
@@ -105,6 +118,23 @@ class Test_Profile:
         homePage.checkHomePageLoaded()
 
         assert homePage.checkUserTweetsDoesntAppear('usuariocp021')
+
+    def test_deleteTweet_031(self,Driver,LoginUser,TweetSomething):
+        myProfile = Profile.MyProfile(Driver)
+        myProfile.openProfilePage()
+        myProfile.checkProfilePageLoaded()
+        myProfile.clickTweetOptions()
+        time.sleep(2)
+        myProfile.clickDeleteTweet()
+        time.sleep(2)
+        myProfile.clickConfirmDeleteTweet()
+        time.sleep(2)
+
+        myProfile.checkProfilePageLoaded()
+
+        assert myProfile.checkUserTweetsAppear('usuario2')
+
+
 
 
 

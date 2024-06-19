@@ -22,6 +22,7 @@ class RegisterPage:
         self.errorMessagePasswordsMustMatch = (By.XPATH, '//label[text()="Passwords must match"]')
         self.errorMessageUserAlreadyExists = (By.XPATH, '//label[text()="User already exists"]')
         self.errorMessageEmailAlreadyExists = (By.XPATH, '//label[text()="Email already exists"]')
+        self.errorMessageInvalidUsername = (By.XPATH, '//label[text()="Special characters are not allowed in the username"]')
 
         self.registerPageURL = r'https://frontend-training-taupe.vercel.app/register'
 
@@ -80,6 +81,15 @@ class RegisterPage:
         try:
             WebDriverWait(self.driver, 20).until(
                 EC.presence_of_element_located(self.errorMessageInvalidPassword)
+            )
+            return True
+        except:
+            return False
+
+    def checkErrorMessageInvalidUsername(self):
+        try:
+            WebDriverWait(self.driver, 20).until(
+                EC.presence_of_element_located(self.errorMessageInvalidUsername)
             )
             return True
         except:

@@ -28,9 +28,6 @@ class Test_Message:
         loginPage = Login.LoginPage(Driver)
         loginPage.login('usuarioMSG2','12345Aa!')
 
-
-
-
     def test_sendMessageMore240Chars_022 (self, Driver, LoginUser):
 
         message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aut."
@@ -64,7 +61,7 @@ class Test_Message:
         assert messagesPage.checkMessagesWasReceived(message)
 
 
-    def test_sendMessageNotFollowing_023 (self, Driver, LoginUser2):
+    def test_sendMessageNotFollowing_023(self, Driver, LoginUser2):
 
         message="Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aut."
 
@@ -92,3 +89,34 @@ class Test_Message:
 
         #Deberia haber una casilla para los mensajes de usuarios que no seguis
         assert messagesPage.checkUserMessagesAppears('usuarioMSG2')
+
+    def test_sendMessageWithImage_028(self, Driver, LoginUser2):
+
+        message="Ut enim isi ut aliquip ex ea commodo consequat. Duis aut."
+        imagePath = r'C:\Users\Mateo\OneDrive\Desktop\imagenesSirius\naboo.jpeg'
+
+        messagesPage = Messages.Messages(Driver)
+        messagesPage.openMessagesPage()
+        messagesPage.checkMessagesPageLoaded()
+
+        messagesPage.goToUserChat('usuario')
+
+        time.sleep(2)
+        messagesPage.writeMessage(message)
+        messagesPage.addFileToMsg(imagePath)
+        messagesPage.clickSendMessageButton()
+        time.sleep(2)
+        assert messagesPage.checkImageWasSent()
+
+    def test_searchUserMessages_030(self, Driver, LoginUser2):
+
+        messagesPage = Messages.Messages(Driver)
+        messagesPage.openMessagesPage()
+        messagesPage.checkMessagesPageLoaded()
+
+        messagesPage.searchUser('usuario')
+
+        time.sleep(2)
+
+        assert messagesPage.checkUserMessagesAppears('usuario')
+

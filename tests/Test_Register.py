@@ -1,3 +1,5 @@
+import time
+
 import pytest
 from selenium import webdriver
 import os
@@ -21,7 +23,10 @@ class Test_Register:
     def DeleteUser(self, Driver):
         yield
         myProfile = Profile.MyProfile(Driver)
+        myProfile.openProfilePage()
+        myProfile.checkProfilePageLoaded()
         myProfile.deleteProfile()
+        time.sleep(2)
 
     @pytest.fixture
     def RegisterUser(self, Driver):
@@ -139,3 +144,18 @@ class Test_Register:
 
 
         assert registerPage.checkRegisterButtonDisabled()
+
+    def test_usernameWithSpecialChars_034(self, Driver, DeleteUser):
+        registerPage = Register.RegisterPage(Driver)
+        registerPage.openRegisterPage()
+
+        registerPage.insertName('NombreTest')
+        registerPage.insertUsername('####')
+        registerPage.insertEmail('specialChar@example.com')
+
+        registerPage.insertPassword('12345Aa!')
+        registerPage.confirmPassword('12345Aa!')
+
+        registerPage.clickRegisterButton()
+
+        assert registerPage.checkErrorMessageInvalidUsername()

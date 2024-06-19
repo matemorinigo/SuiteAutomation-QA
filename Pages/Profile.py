@@ -1,3 +1,5 @@
+import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -11,6 +13,10 @@ class MyProfile:
         self.driver = driver
         self.deleteButton = (By.XPATH, '//button[text()="Delete"]')
         self.confirmDeleteButton = (By.XPATH, '//div[@class="sc-iBAaJG dqKQza"]//button[@mode="delete"]')
+        self.username = (By.CSS_SELECTOR, '.sc-gJgZMk.bJpLtg')
+        self.tweetOptions = (By.CSS_SELECTOR, 'div[class="sc-eGmjcv dagbjn"]')
+        self.deleteTweetButton = (By.CSS_SELECTOR, 'button[mode="deletePost"]')
+        self.confirmDeleteTweetButton = (By.XPATH, '//div[@class="sc-jTIKuF kgEviv"]//button[@mode="delete"]')
         self.myProfileURL = r'https://frontend-training-taupe.vercel.app/profile'
 
     def openProfilePage(self):
@@ -21,6 +27,16 @@ class MyProfile:
 
     def clickConfirmDeleteButton(self):
         self.driver.find_element(*self.confirmDeleteButton).click()
+
+    def clickTweetOptions(self):
+        self.driver.find_element(*self.tweetOptions).click()
+
+    def clickDeleteTweet(self):
+        self.driver.find_element(*self.deleteTweetButton).click()
+
+    def clickConfirmDeleteTweet(self):
+        self.driver.find_element(*self.confirmDeleteTweetButton).click()
+
 
     def deleteProfile(self):
         loginPage = Login.LoginPage(self.driver)
@@ -48,6 +64,26 @@ class MyProfile:
             return True
         except:
             return False
+
+    def checkProfilePageLoaded(self):
+        try:
+            WebDriverWait(self.driver,5).until(
+                EC.presence_of_element_located(self.username)
+            )
+
+            return True
+        except:
+            return False
+
+    def deleteTweet(self):
+        self.openProfilePage()
+        self.checkProfilePageLoaded()
+        self.clickTweetOptions()
+        time.sleep(2)
+        self.clickDeleteTweet()
+        time.sleep(2)
+        self.clickConfirmDeleteTweet()
+
 
 class UserProfile:
     def __init__(self, driver):

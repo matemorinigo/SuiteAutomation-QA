@@ -22,8 +22,67 @@ class Test_HomePage:
     @pytest.fixture
     def LoginUser(self, Driver):
         loginPage = Login.LoginPage(Driver)
+        homePage = HomePage.HomePage(Driver)
         loginPage.login('usuario','12345Aa!')
         yield
+
+    @pytest.fixture
+    def TweetSomething(self, Driver):
+        homePage = HomePage.HomePage(Driver)
+        homePage.openHomePage()
+        homePage.checkHomePageLoaded()
+        homePage.newTweet('New Tweet')
+        time.sleep(2)
+        yield
+    def test_likeTweet_024(self,Driver,LoginUser, TweetSomething):
+        homePage = HomePage.HomePage(Driver)
+        homePage.openHomePage()
+        homePage.checkHomePageLoaded()
+
+        likesBefore = homePage.getTweetLikes()
+        time.sleep(2)
+
+        #Hago un doble click, porque con el driver a veces funciona con doble click y a veces no.
+        #Desde la web tambien a veces pasa lo mismo
+        homePage.likeTweet()
+        time.sleep(2)
+        homePage.likeTweet()
+        time.sleep(10)
+
+        assert likesBefore < homePage.getTweetLikes()
+        time.sleep(5)
+
+        homePage.likeTweet()
+        time.sleep(2)
+
+    def test_retweetTweet_025(self,Driver,LoginUser, TweetSomething):
+        homePage = HomePage.HomePage(Driver)
+        homePage.openHomePage()
+        homePage.checkHomePageLoaded()
+
+        tweetUsername = homePage.getTweetUsername()
+        retweetsBefore = homePage.getTweetRetweets()
+        time.sleep(2)
+        homePage.retweetTweet()
+        time.sleep(2)
+        homePage.retweetTweet()
+        time.sleep(2)
+
+        assert retweetsBefore < homePage.getTweetRetweets()
+        time.sleep(5)
+
+        profilePage = Profile.MyProfile(Driver)
+        profilePage.openProfilePage()
+
+        assert profilePage.checkUserTweetsAppear(tweetUsername)
+
+        homePage.openHomePage()
+        homePage.checkHomePageLoaded()
+
+        homePage.retweetTweet()
+        time.sleep(2)
+
+
 
     def test_tweetMoreThan240Chars_011(self, Driver, LoginUser):
         homePage = HomePage.HomePage(Driver)
@@ -43,6 +102,7 @@ class Test_HomePage:
         homePage.newTweetWithFile(tweet, filePath)
 
         assert homePage.checkTweetSuccessfullyPublished('usuario', tweet)
+
 
     def test_quitImagePreviewOnTweet_013(self, Driver, LoginUser):
         homePage = HomePage.HomePage(Driver)
@@ -122,47 +182,66 @@ class Test_HomePage:
 
         assert not(homePage.checkUserAppearsOnWhoToFollow('usuariocp0201'))
 
-    def test_likeTweet_024(self,Driver,LoginUser):
+
+    def test_addImageToReplyTweet_026(self,Driver,LoginUser):
+        imagePath = r'C:\Users\Mateo\OneDrive\Desktop\imagenesSirius\naboo.jpeg'
+
         homePage = HomePage.HomePage(Driver)
         homePage.openHomePage()
         homePage.checkHomePageLoaded()
 
-        likesBefore = homePage.getTweetLikes()
-        time.sleep(2)
-        homePage.likeTweet()
-        time.sleep(2)
+        homePage.clickCommentButton()
+        homePage.waitForTextArea()
 
-        assert likesBefore < homePage.getTweetLikes()
-        time.sleep(5)
+        homePage.addImageToTweet(imagePath)
+        homePage.addTextToReply("pruebaReply")
 
-        homePage.likeTweet()
         time.sleep(2)
 
+        assert homePage.checkImagePreview()
 
-    def test_retweetTweet_025(self,Driver,LoginUser):
+        homePage.clickPublishTweetButton()
+        homePage.clickCloseRepliesButton()
+        time.sleep(2)
+
+        homePage.checkHomePageLoaded()
+        homePage.clickCommentButton()
+        homePage.waitForTextArea()
+
+        assert homePage.checkUserReplyAppear('usuario')
+
+    def test_repliesOnTweet_027(self,Driver,LoginUser):
         homePage = HomePage.HomePage(Driver)
         homePage.openHomePage()
         homePage.checkHomePageLoaded()
 
-        tweetUsername = homePage.getTweetUsername()
-        retweetsBefore = homePage.getTweetRetweets()
+        homePage.clickCommentButton()
+        homePage.waitForTextArea()
+
+        homePage.addTextToReply("pruebaReply")
+
         time.sleep(2)
-        homePage.retweetTweet()
+        homePage.clickPublishTweetButton()
         time.sleep(2)
+        homePage.clickCloseRepliesButton()
 
-        assert retweetsBefore < homePage.getTweetRetweets()
-        time.sleep(5)
+        homePage.checkHomePageLoaded()
+        homePage.clickTweet()
 
-        profilePage = Profile.MyProfile(Driver)
-        profilePage.openProfilePage()
+        assert homePage.checkRepliesAppear()
 
-        assert profilePage.checkUserTweetsAppear(tweetUsername)
-
+    def test_searchBar_032(self,Driver, LoginUser):
+        homePage = HomePage.HomePage(Driver)
         homePage.openHomePage()
         homePage.checkHomePageLoaded()
 
-        homePage.likeTweet()
+        urlBefore = Driver.current_url
+
+        homePage.searchOnTwitter('tweet')
         time.sleep(2)
+
+        assert urlBefore != Driver.current_url
+
 
 
 

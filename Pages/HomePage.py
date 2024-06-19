@@ -1,5 +1,6 @@
 import time
 
+from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -11,6 +12,8 @@ class HomePage:
         self.driver = driver
         self.homePageTitle = (By.XPATH, '//h1[text()="Home"]')
 
+        self.searchBar = (By.CSS_SELECTOR, 'input[placeholder="Search Twitter"]')
+
         self.profileButton = (By.XPATH, '//button[p/text()="Profile"]')
         self.optionsMenuButton = (By.XPATH, '//div[img[@alt="dot"] and count(img)=3]')
         self.logOutButton = (By.XPATH, '//div[contains(text(), "Log out")]')
@@ -18,6 +21,7 @@ class HomePage:
 
         self.tweetButton = (By.XPATH, '//button[text()="Tweet"]')
         self.tweetTextArea = (By.CSS_SELECTOR, 'textarea[placeholder="What\'s happening?"]')
+        self.replyTextArea = (By.CSS_SELECTOR, 'textarea[placeholder="Tweet your reply"]')
         self.publishTweetButton = (By.CSS_SELECTOR, '.sc-ksJisA.eheooK')
         self.fileInput = (By.ID, 'file-input')
         self.previewImageDiv = (By.CSS_SELECTOR, '.sc-fEyylQ.jbGfBU.sc-idyqAC.eULyBW')
@@ -28,7 +32,13 @@ class HomePage:
 
         self.userProfilePhoto = (By.CSS_SELECTOR, '.sc-csmVar.TfSnt')
 
+        self.tweetReply = (By.CLASS_NAME, 'tweet-reply') #Para que lo implementen con esa clase
+
+        self.tweet = (By.CSS_SELECTOR, 'div[class="sc-tIxES jRRtdU"]')
         self.tweetUsername = (By.XPATH, '//div[@class="sc-fcdPlE cMbONl"]')
+        self.commentButton = (By.XPATH,'//button[img[contains(@alt, "chat-icon")]]')
+        self.comments = (By.XPATH,'//button[img[contains(@alt, "chat-icon")]]/following-sibling::label')
+        self.closeRepliesButton = (By.CSS_SELECTOR, 'button[class="sc-pqitP jyAbil"]')
         self.retweetButton = (By.XPATH,'//button[img[contains(@alt, "retweet-icon")]]')
         self.retweets = (By.XPATH,'//button[img[contains(@alt, "retweet-icon")]]/following-sibling::label')
         self.likeButton = (By.XPATH,'//button[img[contains(@alt, "like-icon")]]')
@@ -87,13 +97,21 @@ class HomePage:
     def addTextToTweet(self, text):
         self.driver.find_element(*self.tweetTextArea).send_keys(text)
 
+    def addTextToReply(self, text):
+        self.driver.find_element(*self.replyTextArea).send_keys(text)
+
     def waitForTextArea(self):
         try:
             WebDriverWait(self.driver,5).until(
                 EC.presence_of_element_located(self.tweetTextArea)
             )
         except:
-            print('An unexpected error occurred')
+            try:
+                WebDriverWait(self.driver,5).until(
+                    EC.presence_of_element_located(self.replyTextArea)
+                )
+            except:
+                print('An unexpected error occurred')
 
     def waitForImagePreview(self):
         try:
@@ -207,6 +225,27 @@ class HomePage:
         except:
             return False
 
+    def checkUserReplyAppear(self, user):
+
+        userReplyXPATH = f'//div[contains(@class, "sc-tIxES jRRtdU")]//div[contains(@class, "sc-fcdPlE cMbONl") and text()="{user}"]'
+
+        try:
+            WebDriverWait(self.driver, 5).until(
+                EC.presence_of_element_located((By.XPATH, userReplyXPATH))
+            )
+            return True
+        except:
+            return False
+
+    def checkRepliesAppear(self):
+        try:
+            WebDriverWait(self.driver, 5).until(
+                EC.presence_of_element_located(self.tweetReply)
+            )
+            return True
+        except:
+            return False
+
     def checkUserTweetsDoesntAppear(self, user):
 
         userTweetXPATH = (f'//div[contains(@class, "sc-fcdPlE cMbONl") and text()="{user}"]')
@@ -266,6 +305,16 @@ class HomePage:
         except:
             return False
 
+    def checkImagePreview(self):
+        try:
+            WebDriverWait(self.driver,5).until(
+                EC.presence_of_element_located(self.previewImageDiv)
+            )
+            return True
+        except:
+            return False
+
+
     def likeTweet(self):
         self.driver.find_element(*self.likeButton).click()
     def getTweetLikes(self):
@@ -276,5 +325,22 @@ class HomePage:
     def getTweetRetweets(self):
         return self.driver.find_element(*self.retweets).text
 
+    def clickCommentButton(self):
+        self.driver.find_element(*self.commentButton).click()
+
+    def clickCloseRepliesButton(self):
+        self.driver.find_element(*self.closeRepliesButton).click()
+    def getTweetComments(self):
+        return self.driver.find_element(*self.comments).text
+
     def getTweetUsername(self):
         return self.driver.find_element(*self.tweetUsername).text
+
+    def clickTweet(self):
+        self.driver.find_element(*self.tweet).click()
+
+    def searchOnTwitter(self,text):
+       searchBar = self.driver.find_element(*self.searchBar)
+       searchBar.send_keys(text)
+       searchBar.send_keys(Keys.ENTER)
+

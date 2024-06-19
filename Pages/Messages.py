@@ -14,7 +14,10 @@ class Messages:
         self.messagesText = (By.XPATH, '//div[text()="Messages"]')
         self.messageInput = (By.XPATH, '//div[contains(@class, "sc-htehxa ezMGfe")]//input[@placeholder="Start a new message"]')
         self.sendMessageButton = (By.CSS_SELECTOR, 'img[alt="message-send-button"]')
+        self.fileInput = (By.ID, 'file-input')
         self.messageXPATH = (By.XPATH, '//div[contains(@class, "sc-jmxxdg bVCWwt") and text()="{}"]')
+
+        self.searchInput = (By.CSS_SELECTOR, 'input[placeholder="Search Direct Message"]')
 
     def openMessagesPage(self):
         self.driver.get(self.messagesURL)
@@ -57,3 +60,19 @@ class Messages:
             return True
         except:
             return False
+
+    def checkImageWasSent(self):
+        try:
+            WebDriverWait(self.driver,5).until(
+                EC.presence_of_element_located((By.XPATH,'//div[@class="sc-fnhmGq cBFRmY"]//img'))
+            )
+            return True
+        except:
+            return False
+
+    def addFileToMsg(self,path):
+        self.driver.find_element(*self.fileInput).send_keys(path)
+
+    def searchUser(self,user):
+        self.driver.find_element(*self.searchInput).send_keys(user)
+
